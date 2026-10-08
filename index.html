@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Gym</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="header">
+        <div>
+            <h1>🏋️‍♀️ Sistema Gym</h1>
+            <p>Administración del gimnasio</p>
+        </div>
+
+        <button class="btn-agregar" onclick="abrirFormulario()">
+            + Agregar cliente
+        </button>
+    </header>
+
+    <main class="contenedor">
+        <section class="estadisticas">
+            <div class="tarjeta activa">
+                <span>🟢</span>
+                <div><h3>Activas</h3><strong id="totalActivas">0</strong></div>
+            </div>
+
+            <div class="tarjeta por-vencer">
+                <span>🟡</span>
+                <div><h3>Por vencer</h3><strong id="totalPorVencer">0</strong></div>
+            </div>
+
+            <div class="tarjeta vencida">
+                <span>🔴</span>
+                <div><h3>Vencidas</h3><strong id="totalVencidas">0</strong></div>
+            </div>
+
+            <div class="tarjeta deuda">
+                <span>💳</span>
+                <div><h3>Con deuda</h3><strong id="totalDeudas">0</strong></div>
+            </div>
+        </section>
+
+        <nav class="menu">
+            <button class="menu-btn activo" onclick="mostrarSeccion('todos')">👥 Todos</button>
+            <button class="menu-btn" onclick="mostrarSeccion('activas')">🟢 Activas</button>
+            <button class="menu-btn" onclick="mostrarSeccion('por-vencer')">🟡 Por vencer</button>
+            <button class="menu-btn" onclick="mostrarSeccion('vencidas')">🔴 Vencidas</button>
+            <button class="menu-btn" onclick="mostrarSeccion('deudas')">💳 Deudas</button>
+            <button class="menu-btn" onclick="mostrarSeccion('fiados')">🧾 Fiados</button>
+            <button class="menu-btn" onclick="mostrarSeccion('historial')">📜 Historial</button>
+            <button class="menu-btn" onclick="mostrarSeccion('pagos')">💰 Pagos</button>
+        </nav>
+
+        <section class="contenido">
+            <div class="titulo-seccion">
+                <div>
+                    <h2 id="tituloSeccion">Todos los clientes</h2>
+                    <p id="descripcionSeccion">Personas registradas en el gimnasio.</p>
+                </div>
+
+                <input
+                    type="text"
+                    id="buscarCliente"
+                    placeholder="🔎 Buscar..."
+                    oninput="buscarClientes()"
+                >
+            </div>
+
+            <div id="listaClientes" class="lista-clientes"></div>
+
+            <div id="listaFiados" class="lista-fiados">
+                <div id="resumenFiados" class="resumen-fiados">
+                    <div>
+                        <span>🧾</span>
+                        <div>
+                            <small>Fiados pendientes</small>
+                            <strong id="cantidadFiados">0</strong>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span>💰</span>
+                        <div>
+                            <small>Total pendiente</small>
+                            <strong id="totalFiado">RD$ 0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <button
+                    id="btnNuevoFiado"
+                    class="btn-nuevo-fiado"
+                    onclick="abrirFormularioFiado()"
+                >
+                    + Registrar fiado
+                </button>
+
+                <div id="contenedorFiados"></div>
+            </div>
+
+            <div id="listaPagos" class="lista-pagos" style="display:none">
+                <div id="contenedorPagos"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FORMULARIO DE CLIENTE -->
+
+    <div id="modalCliente" class="modal">
+        <div class="modal-contenido">
+            <button class="cerrar" onclick="cerrarFormulario()">×</button>
+
+            <h2 id="tituloFormularioCliente">➕ Agregar cliente</h2>
+            <p>Registra los datos básicos del cliente.</p>
+
+            <form id="formCliente" onsubmit="guardarCliente(event)">
+                <label>Nombre</label>
+                <input type="text" id="nombre" required>
+
+                <label>Número de teléfono</label>
+                <input type="tel" id="telefono" required>
+
+                <label>Tipo de membresía</label>
+                <select id="tipoMembresia" required>
+                    <option value="">Seleccionar</option>
+                    <option value="Diaria">Diaria</option>
+                    <option value="Semanal">Semanal</option>
+                    <option value="Quincenal">Quincenal</option>
+                    <option value="Mensual">Mensual</option>
+                </select>
+
+                <label>Fecha de inicio</label>
+                <input type="date" id="fechaInicio" required>
+
+                <label>Fecha de vencimiento</label>
+                <input type="date" id="fechaVencimiento" required>
+
+                <label>Precio de la membresía (RD$)</label>
+                <input type="number" id="precio" min="0" step="0.01" required>
+
+                <label>Monto pagado (RD$)</label>
+                <input type="number" id="pagado" min="0" step="0.01" required>
+
+                <button type="submit" id="btnGuardarCliente" class="btn-guardar">
+                    💾 Guardar cliente
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FORMULARIO DE PAGO -->
+
+    <div id="modalPago" class="modal">
+        <div class="modal-contenido">
+            <button class="cerrar" onclick="cerrarFormularioPago()">×</button>
+
+            <h2>💰 Registrar pago</h2>
+            <p id="infoPago">Registra un pago de membresía.</p>
+
+            <form id="formPago" onsubmit="guardarPago(event)">
+                <label>Cliente</label>
+                <input type="text" id="nombrePago" readonly>
+
+                <label>Deuda pendiente (RD$)</label>
+                <input type="text" id="deudaPago" readonly>
+
+                <label>Monto que pagó (RD$)</label>
+                <input type="number" id="montoPago" min="0.01" step="0.01" required>
+
+                <label>Fecha del pago</label>
+                <input type="date" id="fechaPago" required>
+
+                <button type="submit" class="btn-guardar">💾 Confirmar pago</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FORMULARIO DE FIADO -->
+
+    <div id="modalFiado" class="modal">
+        <div class="modal-contenido">
+            <button class="cerrar" onclick="cerrarFormularioFiado()">×</button>
+
+            <h2>🧾 Registrar fiado</h2>
+            <p>Anota cualquier cosa que alguien haya quedado debiendo.</p>
+
+            <form id="formFiado" onsubmit="guardarFiado(event)">
+                <label>Nombre de la persona</label>
+                <input type="text" id="nombreFiado" required>
+
+                <label>¿Qué quedó debiendo?</label>
+                <input
+                    type="text"
+                    id="conceptoFiado"
+                    placeholder="Ej. Agua, Gatorade, pago diario..."
+                    required
+                >
+
+                <label>Monto (RD$)</label>
+                <input type="number" id="montoFiado" min="0.01" step="0.01" required>
+
+                <label>Fecha</label>
+                <input type="date" id="fechaFiado" required>
+
+                <button type="submit" class="btn-guardar">💾 Guardar fiado</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
